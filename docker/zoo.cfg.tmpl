@@ -1,0 +1,15 @@
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/var/run/zookeeper/data
+clientPort=2181
+{{ $ensembleGroup := .Env.ZK_ENSEMBLE }}
+{{ $containers := where $ ".Env.ZK_ENSEMBLE" $ensembleGroup }}
+{{ range $container := $containers }}
+{{ $addrLen := len $container.Addresses }}
+{{ if gt $addrLen 0 }}
+{{ $address := index $container.Addresses 0 }}
+{{ $ports := split $container.Env.ZK_ENSEMBLE_PORTS "," }}
+server.{{ $container.Env.ZK_ENSEMBLE_ID }}={{ $address.IP }}:{{ index $ports 0 }}:{{ index $ports 1 }}
+{{ end }}
+{{ end }}
